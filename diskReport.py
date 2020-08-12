@@ -228,7 +228,7 @@ def report(path, nv):
 def main():
 	if len(argv) > 2:
 		print("Bad input. Try again with:")
-		print(" \"./diskReport <path>\" or only \"./diskReport\" for analize atual directory.")
+		print(" \"./diskReport <path>\" or only \"./diskReport\" for analize current directory.")
 		exit()
 
 	directory = "/home"

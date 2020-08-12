@@ -139,11 +139,11 @@ def roundSize(size):
 	return size
 
 class Dirr:
-	def __init__(self, lv, name, nIgnrFolders, ignrSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize, totalSize=0):
+	def __init__(self, lv, name, nIgnr, ignrSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize, totalSize=0):
 		self.lv = lv
 		self.name = name
 
-		self.nIgnrFolders = nIgnrFolders
+		self.nIgnr = nIgnr
 		self.ignrSize = roundSize(ignrSize)
 
 		self.nFolders = nFolders
@@ -157,25 +157,39 @@ class Dirr:
 
 	def __repr__(self):
 		idt = TAB * (self.lv - 1)
-		totalSize = "{}Total size              >> {}\n".format(idt, self.totalSize)
 
-		e = ceil((len(totalSize) - len(idt) - len(self.name) - 1) / 2) - 1
-		edge = '-' * e
-		title = "{}{} {} {}\n".format(idt, edge, self.name, edge)
+		title, emptyMsg, totalSize, sep1, sep2 = "", "", "", "", ""
+		ignr, ignrSize = "", ""
+		folders, subFolders, subFiles, files, size = "", "", "", "", ""
 
-		sep = '¨' * (len(title) - len(idt)-1)
-		sep = "{}{}\n".format(idt, sep)
+		title = "{}\\{:-^40}\n".format(idt, self.name)
+		if self.nFolders > 0 or self.nFiles or self.nIgnr:
+			totalSize = "{}Total size                   >> {}\n".format(idt, self.totalSize)
+			sep = '¨' * (len(title) - len(idt)-1)
 
-		ignrFolders = "{}Ignored folders' amount >> {}\n".format(idt, self.nIgnrFolders)
-		ignrSize = "{}Ignored data size       >> {}\n".format(idt, self.ignrSize)
 
-		folders = "{}Folders' amount         >> {}\n".format(idt, self.nFolders)
-		subFolders = "{}  `->sub folders >> {}\n".format(idt, self.nSubFolders)
-		subFiles = "{}  `->sub files   >> {}\n".format(idt, self.nSubFiles)
-		files = "{}Files' amount           >> {}\n".format(idt, self.nFiles)
-		size = "{}Data size               >> {}\n".format(idt, self.notIgnrSize)
+			if self.nIgnr > 0:
+				sep1 = "{}{}\n".format(idt, sep)
+				ignr = "{}Ignored amount               >> {}\n".format(idt, self.nIgnr)
+				ignrSize = "{}Ignored data size            >> {}\n".format(idt, self.ignrSize)
 
-		return "{}{}{}{}{}{}{}{}{}{}{}".format(title, totalSize, sep, ignrFolders, ignrSize, sep, folders, subFolders, subFiles, files, size)
+			if self.notIgnrSize[0] != '0':
+				sep2 = "{}{}\n".format(idt, sep)
+				size = "{}Data size                    >> {}\n".format(idt, self.notIgnrSize)
+
+			if self.nFolders > 0:
+				folders = "{}Folders' amount              >> {}\n".format(idt, self.nFolders)
+				if self.nSubFolders > 0:
+					subFolders = "{}  `->sub folders      >> {}\n".format(idt, self.nSubFolders)
+				if self.nSubFiles > 0:
+					subFiles = "{}  `->sub files        >> {}\n".format(idt, self.nSubFiles)
+
+			if self.nFiles > 0:
+				files = "{}Files' amount                >> {}\n".format(idt, self.nFiles)
+		else:
+			emptyMsg = "{}{:^40}\n".format(idt, "This directory are empty :(")
+
+		return "{}{}{}{}{}{}{}{}{}{}{}{}".format(title, emptyMsg, totalSize, sep1, ignr, ignrSize, sep2, folders, subFolders, subFiles, files, size)
 
 		return size
 
@@ -185,8 +199,8 @@ def report(path, nv):
 	folderName = os.path.basename(path)
 	isIgnr = search(ignore, path)
 
-	nIgnrFolders = 0
-	ignrFoldersSize = 0
+	nIgnr = 0
+	ignrSize = 0
 
 	notIgnrSize = 0
 	nFolders = 0
@@ -201,16 +215,15 @@ def report(path, nv):
 		if search(ignore, entry.path):
 			if os.path.isdir(entry):
 				if name[0] == '.':
-					print("{}`--> /{}".format(indentation, name))
-					nIgnrFolders += 1
+					nIgnr += 1
 
 				_, _, _, _, nIgnrF, ignrS = report(entry.path, nv+1)
-				nIgnrFolders += nIgnrF
-				ignrFoldersSize += ignrS
+				nIgnr += nIgnrF
+				ignrSize += ignrS
 
 			elif os.path.isfile(entry):
 				size = os.path.getsize(entry)
-				ignrFoldersSize += size
+				ignrSize += size
 
 			continue
 
@@ -218,12 +231,12 @@ def report(path, nv):
 			print("{}`--> /{}".format(indentation, name))
 			nFolders += 1
 
-			notIgnrS, nSubFo, nSubFi, _, nIgnrF, ignrS = report(entry.path, nv+1)
+			notIgnrS, _, nSubFo, nSubFi, nIgnrF, ignrS = report(entry.path, nv+1)
 			notIgnrSize += notIgnrS
 			nSubFolders += nSubFo
 			nSubFiles += nSubFi
-			nIgnrFolders += nIgnrF
-			ignrFoldersSize += ignrS
+			nIgnr += nIgnrF
+			ignrSize += ignrS
 
 		elif os.path.isfile(entry):
 			size = os.path.getsize(entry)
@@ -233,11 +246,11 @@ def report(path, nv):
 			notIgnrSize += size
 
 	if not isIgnr:
-		folderData = Dirr(nv, folderName, nIgnrFolders, ignrFoldersSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize)
+		folderData = Dirr(nv, folderName, nIgnr, ignrSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize)
 
 		fullDataFolders.append(folderData)
 
-	return notIgnrSize, nFolders, nSubFolders + nFolders, nSubFiles + nFiles, nIgnrFolders, ignrFoldersSize
+	return notIgnrSize, nFolders, nSubFolders + nFolders, nSubFiles + nFiles, nIgnr, ignrSize
 
 def getInputPath(path):
 	workingPath = os.getcwd()
@@ -272,7 +285,7 @@ def main():
 
 	report(directory, 1)
 
-	print("\n\n- {}DATA{} -\n".format(edge, edge))
+	print("\n\n- {}DATA TREE{} -\n".format(edge[2:], edge[3:]))
 	for folder in fullDataFolders[::-1]: print(folder)
 
 

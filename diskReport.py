@@ -4,6 +4,10 @@ from sys import argv
 from math import ceil
 import os
 
+MEMREF = 2**10
+TAB = ' ' * 4
+fullDataFolders = list()
+
 identifiers = {
 	"Data":{
 		"Data and database":{
@@ -121,8 +125,18 @@ identifiers = {
 		".xhtml":"XHTML"
 	}
 }
-TAB = ' ' * 4
-fullDataFolders = list()
+
+def roundSize(size):
+	units = ["B", "KB", "MB", "GB", "TB"]
+	i = 0
+
+	while size // (MEMREF ** (i + 1)) > 0:
+		i += 1
+
+	size = size / (MEMREF ** i)
+	size = "{:.2f} {}".format(size, units[i])
+
+	return size
 
 class Dirr:
 	def __init__(self, lv, name, nIgnrFolders, ignrSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize, totalSize=0):
@@ -130,41 +144,41 @@ class Dirr:
 		self.name = name
 
 		self.nIgnrFolders = nIgnrFolders
-		self.ignrSize = ignrSize
+		self.ignrSize = roundSize(ignrSize)
 
 		self.nFolders = nFolders
 		self.nSubFolders = nSubFolders
 		self.nSubFiles = nSubFiles
 
 		self.nFiles = nFiles
-		self.notIgnrSize = notIgnrSize
+		self.notIgnrSize = roundSize(notIgnrSize)
 
-		self.totalSize = ignrSize + notIgnrSize
+		self.totalSize = roundSize(ignrSize + notIgnrSize)
 
 	def __repr__(self):
-		# # if self.lv != 1: return ""
-		return "lv: {}\nnome: {}\nnum ignoradas: {}\ntam ignoradas: {}\nqtda pastas no dir: {}\nqtda de subPastas: {}\nqtda de subArq: {}\nqtda de arq: {}\ntam: {}\ntotal tam: {}\n".format(self.lv,
-						self.name,
-						self.nIgnrFolders,
-						self.ignrSize,
-						self.nFolders,
-						self.nSubFolders,
-						self.nSubFiles,
-						self.nFiles,
-						self.notIgnrSize,
-						self.totalSize)
+		idt = TAB * (self.lv - 1)
+		totalSize = "{}Total size              >> {}\n".format(idt, self.totalSize)
 
-		# idt = TAB * (self.lv - 1)
-		# totalSize = "{}Total size        >> {} bytes\n".format(idt, self.totalSize)
+		e = ceil((len(totalSize) - len(idt) - len(self.name) - 1) / 2) - 1
+		edge = '-' * e
+		title = "{}{} {} {}\n".format(idt, edge, self.name, edge)
 
-		# e = ceil((len(totalSize) - len(idt) - len(self.name) - 1) / 2)
-		# edge = '-' * e
+		sep = '¨' * (len(title) - len(idt)-1)
+		sep = "{}{}\n".format(idt, sep)
 
-		# title = "{}{}{}{}\n".format(idt, edge, self.name, edge)
-		# foldersInfo = "{}Amount of folders >> {}\n".format(idt, self.nFolders)
-		# filesInfo = "{}Amount of files   >> {}\n".format(idt, self.nFiles)
+		ignrFolders = "{}Ignored folders' amount >> {}\n".format(idt, self.nIgnrFolders)
+		ignrSize = "{}Ignored data size       >> {}\n".format(idt, self.ignrSize)
 
-		# return "{}\n{}\n{}{}{}{}".format(self.nIgnrFolders, self.ignrSize, title, totalSize, foldersInfo, filesInfo)
+		folders = "{}Folders' amount         >> {}\n".format(idt, self.nFolders)
+		subFolders = "{}  `->sub folders >> {}\n".format(idt, self.nSubFolders)
+		subFiles = "{}  `->sub files   >> {}\n".format(idt, self.nSubFiles)
+		files = "{}Files' amount           >> {}\n".format(idt, self.nFiles)
+		size = "{}Data size               >> {}\n".format(idt, self.notIgnrSize)
+
+		return "{}{}{}{}{}{}{}{}{}{}{}".format(title, totalSize, sep, ignrFolders, ignrSize, sep, folders, subFolders, subFiles, files, size)
+
+		return size
+
 
 def report(path, nv):
 	ignore = r"/\."
@@ -213,7 +227,7 @@ def report(path, nv):
 
 		elif os.path.isfile(entry):
 			size = os.path.getsize(entry)
-			print("{}`-> {} has usage {} bytes".format(indentation, name, size))
+			print("{}`-> {} has usage {}".format(indentation, name, roundSize(size)))
 
 			nFiles += 1
 			notIgnrSize += size
@@ -225,6 +239,22 @@ def report(path, nv):
 
 	return notIgnrSize, nFolders, nSubFolders + nFolders, nSubFiles + nFiles, nIgnrFolders, ignrFoldersSize
 
+def getInputPath(path):
+	workingPath = os.getcwd()
+	dirr = "{}/{}".format(workingPath, path)
+
+	if not os.path.exists(dirr):
+		print("Bad input. Try again with path to a existing directory.")
+		exit()
+	elif not os.path.isdir(dirr):
+		print("Bad input. Try again with path to a directory.")
+		exit()
+
+	os.chdir(path)
+	dirr = os.getcwd()
+
+	return dirr
+
 def main():
 	if len(argv) > 2:
 		print("Bad input. Try again with:")
@@ -233,18 +263,7 @@ def main():
 
 	directory = "/home"
 	if len(argv) == 2:
-		workingPath = os.getcwd()
-		directory = "{}/{}".format(workingPath, argv[1])
-
-		if not os.path.exists(directory):
-			print("Bad input. Try again with path to a existing directory.")
-			exit()
-		elif not os.path.isdir(directory):
-			print("Bad input. Try again with path to a directory.")
-			exit()
-
-		os.chdir(argv[1])
-		directory = os.getcwd()
+		directory = getInputPath(argv[1])
 
 	name = os.path.basename(directory)
 	edge = ' - ' * 9

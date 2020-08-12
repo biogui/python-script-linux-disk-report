@@ -1,20 +1,46 @@
 #!/usr/bin/python3
 from sys import argv
+from re import search
 import os
 
+def strFromChar(origStr, ref):
+	init = 0
+	for i, c in enumerate(origStr):
+		if c == ref: init = i
+
+	return origStr[init:]
+
 def report(initialPath, nv):
-	# if nv == 5: exit()
+	indentation = "\t" * nv
+
+	ignore = r"/\."
+
+	folderSize = 0
+	nFolders = 0
+	nFiles = 0
+
 	for entry in os.scandir(initialPath):
-		caule = "\t" * nv
+		name = os.path.basename(entry)
+
+		if search(ignore, entry.path): continue
 
 		if os.path.isdir(entry):
-			size = os.path.getsize(entry)
-			print("{}↳folder {} has usage {} bytes".format(caule, entry.path, size))
+			print("{}↳/{}".format(indentation, name))
+			nFolders += 1
 
-			report(entry.path, nv+1)
+			fS, nFo, nFi = report(entry.path, nv+1)
+			folderSize += fS
+			nFolders += nFo
+			nFiles += nFi
+
 		elif os.path.isfile(entry):
 			size = os.path.getsize(entry)
-			print("{}↳file {} has usage {} bytes".format(caule, entry.path, size))
+			print("{}↳{} has usage {} bytes".format(indentation, name, size))
+
+			nFiles += 1
+			folderSize += size
+
+	return folderSize, nFolders, nFiles
 
 def main():
 	if (len(argv) != 2):
@@ -23,8 +49,13 @@ def main():
 		exit()
 
 	directory = argv[1]
+	name = strFromChar(directory, '/')
 
-	report(directory, 0)
+	edge = ' - ' * 10
+	print("{}TREE{}".format(edge, edge))
+	print("↳/{}".format(name))
+
+	report(directory, 1)
 
 
 

@@ -8,6 +8,45 @@ MEMREF = 2**10
 TAB = ' ' * 4
 fullDataFolders = list()
 
+class Style:
+	def __init__(self):
+			self.none = 0
+			self.strong = 1
+			self.blur = 2
+			self.italic = 3
+			self.underline = 4
+			self.flash = 6
+			self.negative = 7
+			self.strike = 9
+
+class TxtColor:
+	def __init__(self):
+			self.none = ""
+			self.white = ";30"
+			self.red = ";31"
+			self.green = ";32"
+			self.yellow = ";33"
+			self.blue = ";34"
+			self.purple = ";35"
+			self.cyan = ";36"
+			self.grey = ";37"
+
+class BgColor:
+	def __init__(self):
+			self.none = ""
+			self.white = ";40"
+			self.red = ";41"
+			self.green = ";42"
+			self.yellow = ";43"
+			self.blue = ";44"
+			self.purple = ";45"
+			self.cyan = ";46"
+			self.grey = ";47"
+
+s = Style()
+t = TxtColor()
+b = BgColor()
+
 identifiers = {
 	"Data":{
 		"Data and database":{
@@ -156,13 +195,16 @@ class Dirr:
 		self.totalSize = roundSize(ignrSize + notIgnrSize)
 
 	def __repr__(self):
+		if self.lv > 3: return ""
+
 		idt = TAB * (self.lv - 1)
 
 		title, emptyMsg, totalSize, sep1, sep2 = "", "", "", "", ""
 		ignr, ignrSize = "", ""
 		folders, subFolders, subFiles, files, size = "", "", "", "", ""
 
-		title = "{}\\{:-^40}\n".format(idt, self.name)
+		header = "\n{}{:_<40}\n".format(idt, "")
+		title = "{}|{:_^38}|\n".format(idt, self.name)
 		if self.nFolders > 0 or self.nFiles or self.nIgnr:
 			totalSize = "{}Total size                   >> {}\n".format(idt, self.totalSize)
 			sep = '¨' * (len(title) - len(idt)-1)
@@ -180,19 +222,16 @@ class Dirr:
 			if self.nFolders > 0:
 				folders = "{}Folders' amount              >> {}\n".format(idt, self.nFolders)
 				if self.nSubFolders > 0:
-					subFolders = "{}  `->sub folders      >> {}\n".format(idt, self.nSubFolders)
+					subFolders = "{}  `->sub folders  >> {}\n".format(idt, self.nSubFolders)
 				if self.nSubFiles > 0:
-					subFiles = "{}  `->sub files        >> {}\n".format(idt, self.nSubFiles)
+					subFiles = "{}  `->sub files    >> {}\n".format(idt, self.nSubFiles)
 
 			if self.nFiles > 0:
 				files = "{}Files' amount                >> {}\n".format(idt, self.nFiles)
 		else:
 			emptyMsg = "{}{:^40}\n".format(idt, "This directory are empty :(")
 
-		return "{}{}{}{}{}{}{}{}{}{}{}{}".format(title, emptyMsg, totalSize, sep1, ignr, ignrSize, sep2, folders, subFolders, subFiles, files, size)
-
-		return size
-
+		return "{}{}{}{}{}{}{}{}{}{}{}{}{}".format(header, title, emptyMsg, totalSize, sep1, ignr, ignrSize, sep2, folders, subFolders, subFiles, files, size)
 
 def report(path, nv):
 	ignore = r"/\."
@@ -202,11 +241,11 @@ def report(path, nv):
 	nIgnr = 0
 	ignrSize = 0
 
-	notIgnrSize = 0
 	nFolders = 0
 	nSubFolders = 0
 	nSubFiles = 0
 	nFiles = 0
+	notIgnrSize = 0
 
 	indentation = TAB * nv
 	for entry in os.scandir(path):
@@ -228,7 +267,7 @@ def report(path, nv):
 			continue
 
 		if os.path.isdir(entry):
-			print("{}`--> /{}".format(indentation, name))
+			print("\n{}`--> /{}".format(indentation, name))
 			nFolders += 1
 
 			notIgnrS, _, nSubFo, nSubFi, nIgnrF, ignrS = report(entry.path, nv+1)
@@ -268,15 +307,24 @@ def getInputPath(path):
 
 	return dirr
 
-def main():
+def printDataTree(edge):
+	print("\n\n- {}DATA TREE{} -\n".format(edge[2:], edge[3:]))
+	for folder in fullDataFolders[::-1]: print(folder, end="")
+
+def validInput():
 	if len(argv) > 2:
 		print("Bad input. Try again with:")
 		print(" \"./diskReport <path>\" or only \"./diskReport\" for analize current directory.")
 		exit()
 
-	directory = "/home"
+	dirr = "/home"
 	if len(argv) == 2:
-		directory = getInputPath(argv[1])
+		dirr = getInputPath(argv[1])
+
+	return dirr
+
+def main():
+	directory = validInput()
 
 	name = os.path.basename(directory)
 	edge = ' - ' * 9
@@ -285,9 +333,7 @@ def main():
 
 	report(directory, 1)
 
-	print("\n\n- {}DATA TREE{} -\n".format(edge[2:], edge[3:]))
-	for folder in fullDataFolders[::-1]: print(folder)
-
+	printDataTree(edge)
 
 if __name__ == "__main__":
 	main()

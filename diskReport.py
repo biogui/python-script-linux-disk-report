@@ -10,18 +10,18 @@ fullDataFolders = list()
 
 class Style:
 	def __init__(self):
-			self.none = 0
-			self.strong = 1
-			self.blur = 2
-			self.italic = 3
-			self.underline = 4
-			self.flash = 6
-			self.negative = 7
-			self.strike = 9
+			self.none = ";0"
+			self.strong = ";1"
+			self.blur = ";2"
+			self.italic = ";3"
+			self.underline = ";4"
+			self.flash = ";6"
+			self.negative = ";7"
+			self.strike = ";9"
 
 class TxtColor:
 	def __init__(self):
-			self.none = ""
+			self.none = ";50"
 			self.white = ";30"
 			self.red = ";31"
 			self.green = ";32"
@@ -33,7 +33,7 @@ class TxtColor:
 
 class BgColor:
 	def __init__(self):
-			self.none = ""
+			self.none = ";50"
 			self.white = ";40"
 			self.red = ";41"
 			self.green = ";42"
@@ -47,11 +47,10 @@ s = Style()
 t = TxtColor()
 b = BgColor()
 
-
-def stringStyling(string, style = s.none, txt = t.none, bg = b.none):
-	start = "\033["
+def stringStyling(string, txt=t.none, bg=b.none, s1=s.none, s2=s.none, s3=s.none, s4=s.none, s5=s.none, s6=s.none):
+	start = "\033[0{}{}{}{}{}{}{}{}m".format(s6, s5, s4, s3, s2, s1, txt, bg)
 	end = "\033[m"
-	return "{}{}{}{}m{}{}".format(start, style, txt, bg, string, end) 
+	return "{}{}{}".format(start, string, end)
 
 identifiers = {
 	"Data":{
@@ -209,44 +208,59 @@ class Dirr:
 		ignr, ignrSize = "", ""
 		folders, subFolders, subFiles, files, size = "", "", "", "", ""
 
-		header = '_' * 40
-		header = stringStyling(header, s.strong)
-		header = "\n{}{}\n".format(idt, header)
-		edge1 = stringStyling("|", s.strong)
-		n = (38 - len(self.name)) // 2
-		edge2 = stringStyling("_" * n, s.strong, bg = b.white)
-		title = "{}{}{}{}{}{}\n\n".format(idt, edge1, edge2, stringStyling(self.name, s.strong, t.red, b.white), edge2, edge1)
+		detail = stringStyling('_', t.cyan, s1=s.strong)
+		header = "\n{}{}\n".format(idt, 40 * detail)
+		header = "\n"
+
+		name = stringStyling(self.name, t.red, b.purple, s1=s.strong)
+		initP1 = len(self.name) // 2
+		initP2 = len(self.name) - initP1
+
+		detail = stringStyling('-', t.cyan, b.purple)
+		pipe = stringStyling("|", t.cyan, s1=s.strong)
+		p1 = "{}{}".format(pipe, (19 - initP1) * detail)
+		p2 = "{}{}".format((19 - initP2) * detail, pipe)
+
+		title = "{}{}{}{}\n\n".format(idt, p1, name, p2)
 
 		if self.nFolders > 0 or self.nFiles or self.nIgnr:
-			text = stringStyling("Total size", txt = t.blue)
-			totalSize = "{}{}                 \033[1;31m>>\033[m {}\n".format(idt, text, self.totalSize)
-			sep = '¨' * 40
-			sep = stringStyling(sep, s.strong, t.red)
+			doubleArrow = stringStyling(">> ", t.cyan, s1=s.strong)
 
+			text = stringStyling("Total size", txt=t.red, s1=s.strong)
+			totalSize = "{}{}                 {}{}\n".format(idt, text, doubleArrow, self.totalSize)
+
+			sep = '¨' * 40
+			sep = stringStyling(sep, t.cyan, s1=s.strong)
 
 			if self.nIgnr > 0:
-				text = stringStyling("Ignored amount", txt = t.blue)
 				sep1 = "{}{}\n".format(idt, sep)
-				ignr = "{}{}             >> {}\n".format(idt, text, self.nIgnr)
-				text_2 = stringStyling("Ignored data size", txt = t.blue)
-				ignrSize = "{}{}          >> {}\n".format(idt, text_2, self.ignrSize)
+
+				text = stringStyling("Ignored amount", txt=t.red, s1=s.strong)
+				ignr = "{}{}             {}{}\n".format(idt, text, doubleArrow, self.nIgnr)
+
+				text2 = stringStyling("Ignored data size", txt=t.red, s1=s.strong)
+				ignrSize = "{}{}          {}{}\n".format(idt, text2, doubleArrow, self.ignrSize)
 
 			if self.notIgnrSize[0] != '0':
 				sep2 = "{}{}\n".format(idt, sep)
-				text = stringStyling("Data size", txt = t.blue)
-				size = "{}{}                  >> {}\n".format(idt, text, self.notIgnrSize)
+
+				text = stringStyling("Data size", txt=t.red, s1=s.strong)
+				size = "{}{}                  {}{}\n".format(idt, text, doubleArrow, self.notIgnrSize)
 
 			if self.nFolders > 0:
-				text = stringStyling("Folders' amount", txt = t.blue)
-				folders = "{}{}            >> {}\n".format(idt, text, self.nFolders)
+				text = stringStyling("Folders' amount", txt=t.red, s1=s.strong)
+				folders = "{}{}            {}{}\n".format(idt, text, doubleArrow, self.nFolders)
+
 				if self.nSubFolders > 0:
-					subFolders = "{}  `->sub folders>> {}\n".format(idt, self.nSubFolders)
+					t1 = stringStyling("  `->sub folders ", s1=s.blur)
+					subFolders = "{}{}{}{}\n".format(idt, t1, doubleArrow, self.nSubFolders)
 				if self.nSubFiles > 0:
-					subFiles = "{}  `->sub files  >> {}\n".format(idt, self.nSubFiles)
+					t2 = stringStyling("  `->sub files   ", s1=s.strong)
+					subFiles = "{}{}{}{}\n".format(idt, t2, doubleArrow, self.nSubFiles)
 
 			if self.nFiles > 0:
-				text = stringStyling("Files' amount", txt = t.blue)
-				files = "{}{}              >> {}\n".format(idt, files, self.nFiles)
+				text = stringStyling("Files' amount", txt=t.red, s1=s.strong)
+				files = "{}{}              {}{}\n".format(idt, text, doubleArrow, self.nFiles)
 		else:
 			emptyMsg = "{}{:^40}\n".format(idt, "This directory is empty :(")
 
@@ -287,9 +301,9 @@ def report(path, nv):
 
 		if os.path.isdir(entry):
 			name = "/{}".format(name)
-			name = stringStyling(name, s.strong, t.purple)
-			arrow = "`--> "
-			arrow = stringStyling(arrow, s.strong, t.red)
+			name = stringStyling(name, t.purple, s1=s.strong, s2=s.italic)
+
+			arrow = stringStyling("`--> ", t.red, s1=s.strong)
 			print("\n{}{}{}".format(indentation, arrow, name))
 			nFolders += 1
 
@@ -301,14 +315,15 @@ def report(path, nv):
 			ignrSize += ignrS
 
 		elif os.path.isfile(entry):
-			name = stringStyling(name, s.blur, t.purple)
+			name = stringStyling(name, t.purple)
+
 			size = os.path.getsize(entry)
 			sizeStr = roundSize(size)
-			sizeStr = stringStyling(sizeStr, txt = t.cyan)
-			arrow = "`-> "
-			arrow = stringStyling(arrow, s.blur, t.red)
-			usage = stringStyling(" has usage ", s.italic)
-			print("{}{}{}{}{}".format(indentation, arrow, name, usage, sizeStr))
+			sizeStr = stringStyling(sizeStr, t.cyan)
+
+			arrow = stringStyling("`-> ", t.red, s1=s.blur)
+			text = stringStyling(" has usage ", s1=s.blur, s2=s.italic)
+			print("{}{}{}{}{}".format(indentation, arrow, name, text, sizeStr))
 
 			nFiles += 1
 			notIgnrSize += size
@@ -337,8 +352,8 @@ def getInputPath(path):
 	return dirr
 
 def printDataTree(edge):
-	title = " - {}DATA TREE{} - ".format(edge[3:], edge[3:])
-	title = stringStyling(title, s.strong, t.cyan, b.white)
+	title = "{}DATA TREE{}".format(edge[3:], edge[3:])
+	title = stringStyling(title, t.cyan, b.purple, s1=s.strong)
 	print("\n\n{}".format(title))
 	for folder in fullDataFolders[::-1]: print(folder, end="")
 
@@ -358,14 +373,14 @@ def main():
 	directory = validInput()
 
 	name = "/{}".format(os.path.basename(directory))
-	name = stringStyling(name, s.italic, t.purple)
-	edge = ' - ' * 9
+	name = stringStyling(name, t.purple, s1=s.strong, s2=s.italic)
 
-	title = " - {}TREE{} - ".format(edge, edge)
-	title = stringStyling(title, s.strong, t.red, b.white)
+	edge = ' - ' * 10
+	title = "{}TREE{}".format(edge, edge)
+	title = stringStyling(title, t.red, b.purple, s1=s.strong)
 
 	arrow = "`--> "
-	arrow = stringStyling(arrow, s.strong, t.red)
+	arrow = stringStyling(arrow, t.red, s1=s.strong)
 	print("\n{}".format(title))
 	print("{}{}".format(arrow, name))
 
@@ -375,3 +390,8 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
+'''
+-  -  -  -  -  -  -  -  -  - TREE -  -  -  -  -  -  -  -  -  -
+  -  -  -  -  -  -  -  -  - DATA TREE -  -  -  -  -  -  -  -  -
+'''

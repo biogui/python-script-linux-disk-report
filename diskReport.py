@@ -200,67 +200,70 @@ class Dirr:
 		self.totalSize = roundSize(ignrSize + notIgnrSize)
 
 	def __repr__(self):
-		if self.lv > 3: return ""
+		# if self.lv > 3: return ""
 
-		idt = TAB * (self.lv - 1)
+		idt = ""
+		pipe = stringStyling("|", t.cyan, s1=s.strong)
+		for i in range(self.lv - 1):
+			idt += "{}{}".format(TAB, pipe)
 
 		title, emptyMsg, totalSize, sep1, sep2 = "", "", "", "", ""
 		ignr, ignrSize = "", ""
 		folders, subFolders, subFiles, files, size = "", "", "", "", ""
 
-		detail = stringStyling('_', t.cyan, s1=s.strong)
+		detail = stringStyling('-', t.cyan, s1=s.strong)
 		header = "\n{}{}\n".format(idt, 40 * detail)
-		header = "\n"
+		header = "{}{}".format(idt, pipe)
 
-		name = stringStyling(self.name, t.red, b.purple, s1=s.strong)
+		name = stringStyling(self.name, t.red, s1=s.strong)
 		initP1 = len(self.name) // 2
 		initP2 = len(self.name) - initP1
 
-		detail = stringStyling('-', t.cyan, b.purple)
-		pipe = stringStyling("|", t.cyan, s1=s.strong)
-		p1 = "{}{}".format(pipe, (19 - initP1) * detail)
-		p2 = "{}{}".format((19 - initP2) * detail, pipe)
+		bar = stringStyling("`", t.cyan, s1=s.strong)
+		p1 = "{}{}".format(bar, (18 - initP1) * detail)
+		p2 = "{}".format((20 - initP2) * detail)
 
-		title = "{}{}{}{}\n\n".format(idt, p1, name, p2)
+		title = "\n{}{}{}{}\n{}{}\n".format(idt, p1, name, p2, idt + TAB, pipe)
 
 		if self.nFolders > 0 or self.nFiles or self.nIgnr:
+			idt += TAB
 			doubleArrow = stringStyling(">> ", t.cyan, s1=s.strong)
 
 			text = stringStyling("Total size", txt=t.red, s1=s.strong)
-			totalSize = "{}{}                 {}{}\n".format(idt, text, doubleArrow, self.totalSize)
+			totalSize = "{}{}{}            {}{}\n".format(idt, pipe, text, doubleArrow, self.totalSize)
 
-			sep = '¨' * 40
+			sep = '¨' * 35
 			sep = stringStyling(sep, t.cyan, s1=s.strong)
 
 			if self.nIgnr > 0:
-				sep1 = "{}{}\n".format(idt, sep)
+				sep1 = "{}{}{}\n".format(idt, pipe, sep)
 
 				text = stringStyling("Ignored amount", txt=t.red, s1=s.strong)
-				ignr = "{}{}             {}{}\n".format(idt, text, doubleArrow, self.nIgnr)
+				ignr = "{}{}{}        {}{}\n".format(idt, pipe, text, doubleArrow, self.nIgnr)
 
 				text2 = stringStyling("Ignored data size", txt=t.red, s1=s.strong)
-				ignrSize = "{}{}          {}{}\n".format(idt, text2, doubleArrow, self.ignrSize)
+				ignrSize = "{}{}{}     {}{}\n".format(idt, pipe, text2, doubleArrow, self.ignrSize)
 
 			if self.notIgnrSize[0] != '0':
-				sep2 = "{}{}\n".format(idt, sep)
+				sep2 = "{}{}{}\n".format(idt, pipe, sep)
 
 				text = stringStyling("Data size", txt=t.red, s1=s.strong)
-				size = "{}{}                  {}{}\n".format(idt, text, doubleArrow, self.notIgnrSize)
+				size = "{}{}{}             {}{}\n".format(idt, pipe, text, doubleArrow, self.notIgnrSize)
 
 			if self.nFolders > 0:
 				text = stringStyling("Folders' amount", txt=t.red, s1=s.strong)
-				folders = "{}{}            {}{}\n".format(idt, text, doubleArrow, self.nFolders)
+				folders = "{}{}{}       {}{}\n".format(idt, pipe, text, doubleArrow, self.nFolders)
 
 				if self.nSubFolders > 0:
-					t1 = stringStyling("  `->sub folders ", s1=s.blur)
-					subFolders = "{}{}{}{}\n".format(idt, t1, doubleArrow, self.nSubFolders)
+					t1 = stringStyling(" `->sub folders ", s1=s.blur)
+					subFolders = "{}{}{}{}{}\n".format(idt, pipe, t1, doubleArrow, self.nSubFolders)
 				if self.nSubFiles > 0:
-					t2 = stringStyling("  `->sub files   ", s1=s.strong)
-					subFiles = "{}{}{}{}\n".format(idt, t2, doubleArrow, self.nSubFiles)
+					t2 = stringStyling(" `->sub files   ", s1=s.blur)
+					subFiles = "{}{}{}{}{}\n".format(idt, pipe, t2, doubleArrow, self.nSubFiles)
 
 			if self.nFiles > 0:
 				text = stringStyling("Files' amount", txt=t.red, s1=s.strong)
-				files = "{}{}              {}{}\n".format(idt, text, doubleArrow, self.nFiles)
+				files = "{}{}{}         {}{}\n".format(idt, pipe, text, doubleArrow, self.nFiles)
 		else:
 			emptyMsg = "{}{:^40}\n".format(idt, "This directory is empty :(")
 
@@ -321,7 +324,7 @@ def report(path, nv):
 			sizeStr = roundSize(size)
 			sizeStr = stringStyling(sizeStr, t.cyan)
 
-			arrow = stringStyling("`-> ", t.red, s1=s.blur)
+			arrow = stringStyling("`-> ", t.red, s1=s.strong)
 			text = stringStyling(" has usage ", s1=s.blur, s2=s.italic)
 			print("{}{}{}{}{}".format(indentation, arrow, name, text, sizeStr))
 
@@ -353,7 +356,7 @@ def getInputPath(path):
 
 def printDataTree(edge):
 	title = "{}DATA TREE{}".format(edge[3:], edge[3:])
-	title = stringStyling(title, t.cyan, b.purple, s1=s.strong)
+	title = stringStyling(title, t.cyan, s1=s.strong)
 	print("\n\n{}".format(title))
 	for folder in fullDataFolders[::-1]: print(folder, end="")
 
@@ -377,7 +380,7 @@ def main():
 
 	edge = ' - ' * 10
 	title = "{}TREE{}".format(edge, edge)
-	title = stringStyling(title, t.red, b.purple, s1=s.strong)
+	title = stringStyling(title, t.cyan, s1=s.strong)
 
 	arrow = "`--> "
 	arrow = stringStyling(arrow, t.red, s1=s.strong)

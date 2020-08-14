@@ -8,46 +8,39 @@ MEMREF = 2**10
 TAB = ' ' * 4
 fullDataFolders = list()
 
-class Style:
-	def __init__(self):
-			self.none = ";0"
-			self.strong = ";1"
-			self.blur = ";2"
-			self.italic = ";3"
-			self.underline = ";4"
-			self.flash = ";6"
-			self.negative = ";7"
-			self.strike = ";9"
+class S: #Style flags
+	none = ";0"
+	strong = ";1"
+	blur = ";2"
+	italic = ";3"
+	underline = ";4"
+	flash = ";6"
+	negative = ";7"
+	strike = ";9"
 
-class TxtColor:
-	def __init__(self):
-			self.none = ";50"
-			self.white = ";30"
-			self.red = ";31"
-			self.green = ";32"
-			self.yellow = ";33"
-			self.blue = ";34"
-			self.purple = ";35"
-			self.cyan = ";36"
-			self.grey = ";37"
+class T: #Text Colors flags
+	none = ";50"
+	black = ";30"
+	red = ";31"
+	green = ";32"
+	yellow = ";33"
+	blue = ";34"
+	purple = ";35"
+	cyan = ";36"
+	white = ";37"
 
-class BgColor:
-	def __init__(self):
-			self.none = ";50"
-			self.white = ";40"
-			self.red = ";41"
-			self.green = ";42"
-			self.yellow = ";43"
-			self.blue = ";44"
-			self.purple = ";45"
-			self.cyan = ";46"
-			self.grey = ";47"
+class Bg: #Background colors flags
+	none = ";50"
+	black = ";40"
+	red = ";41"
+	green = ";42"
+	yellow = ";43"
+	blue = ";44"
+	purple = ";45"
+	cyan = ";46"
+	white = ";47"
 
-s = Style()
-t = TxtColor()
-b = BgColor()
-
-def stringStyling(string, txt=t.none, bg=b.none, s1=s.none, s2=s.none, s3=s.none, s4=s.none, s5=s.none, s6=s.none):
+def stylizesStr(string, txt=T.none, bg=Bg.none, s1=S.none, s2=S.none, s3=S.none, s4=S.none, s5=S.none, s6=S.none):
 	start = "\033[0{}{}{}{}{}{}{}{}m".format(s6, s5, s4, s3, s2, s1, txt, bg)
 	end = "\033[m"
 	return "{}{}{}".format(start, string, end)
@@ -170,7 +163,7 @@ identifiers = {
 	}
 }
 
-def roundSize(size):
+def roundsSize(size):
 	units = ["B", "KB", "MB", "GB", "TB"]
 	i = 0
 
@@ -183,27 +176,25 @@ def roundSize(size):
 	return size
 
 class Dirr:
-	def __init__(self, lv, name, nIgnr, ignrSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize, totalSize=0):
+	def __init__(self, lv, name, amtIgnr, ignrSize, amtFolders, amtSubFolders, amtSubFiles, amtFiles, notIgnrSize, totalSize=0):
 		self.lv = lv
 		self.name = name
 
-		self.nIgnr = nIgnr
-		self.ignrSize = roundSize(ignrSize)
+		self.amtIgnr = amtIgnr
+		self.ignrSize = roundsSize(ignrSize)
 
-		self.nFolders = nFolders
-		self.nSubFolders = nSubFolders
-		self.nSubFiles = nSubFiles
+		self.amtFolders = amtFolders
+		self.amtSubFolders = amtSubFolders
+		self.amtSubFiles = amtSubFiles
 
-		self.nFiles = nFiles
-		self.notIgnrSize = roundSize(notIgnrSize)
+		self.amtFiles = amtFiles
+		self.notIgnrSize = roundsSize(notIgnrSize)
 
-		self.totalSize = roundSize(ignrSize + notIgnrSize)
+		self.totalSize = roundsSize(ignrSize + notIgnrSize)
 
 	def __repr__(self):
-		# if self.lv > 3: return ""
-
 		idt = ""
-		pipe = stringStyling("|", t.cyan, s1=s.strong)
+		pipe = stylizesStr("|", T.cyan, s1=S.strong)
 		for i in range(self.lv - 1):
 			idt += "{}{}".format(TAB, pipe)
 
@@ -211,172 +202,176 @@ class Dirr:
 		ignr, ignrSize = "", ""
 		folders, subFolders, subFiles, files, size = "", "", "", "", ""
 
-		detail = stringStyling('_', t.cyan, s1=s.strong)
+		detail = stylizesStr('_', T.cyan, s1=S.strong)
 		# header = "\n{}{}\n".format(idt, 40 * detail)
 		header = "{}".format(idt)
 
-		name = stringStyling(self.name, t.red, s1=s.strong)
+		name = stylizesStr(self.name, T.red, s1=S.strong)
 		initP1 = len(self.name) // 2
 		initP2 = len(self.name) - initP1
 
-		bar = stringStyling("\\", t.cyan, s1=s.strong)
+		bar = stylizesStr("\\", T.cyan, s1=S.strong)
 		p1 = "{}{}".format(bar, (18 - initP1) * detail)
 		p2 = "{}".format((20 - initP2) * detail)
 
-		title = "\n{}{}{}{}\n{}{}\n".format(idt, p1, name, p2, idt + TAB, pipe)
 
-		if self.nFolders > 0 or self.nFiles or self.nIgnr:
+		if self.amtFolders == 0 and self.amtFiles == 0 and self.amtIgnr == 0:
+			title = "\n{}{}{}{}\n".format(idt, p1, name, p2)
+			emptyMsg = "{}{:^40}\n".format(idt, "This directory is empty :(")
+		else:
+			title = "\n{}{}{}{}\n{}{}\n".format(idt, p1, name, p2, idt + TAB, pipe)
 			idt += TAB
-			doubleArrow = stringStyling(">> ", t.cyan, s1=s.strong)
+			doubleArrow = stylizesStr(">> ", T.cyan, s1=S.strong)
 
-			text = stringStyling("Total size", txt=t.red, s1=s.strong)
+			text = stylizesStr("Total size", txt=T.red, s1=S.strong)
 			totalSize = "{}{}{}            {}{}\n".format(idt, pipe, text, doubleArrow, self.totalSize)
 
-			sep = '¨' * 35
-			sep = stringStyling(sep, t.cyan, s1=s.strong)
+			sep = '¨' * 34
+			sep = stylizesStr(sep, T.cyan, s1=S.strong)
 
-			if self.nIgnr > 0:
+			if self.amtIgnr > 0:
 				sep1 = "{}{}{}\n".format(idt, pipe, sep)
 
-				text = stringStyling("Ignored amount", txt=t.red, s1=s.strong)
-				ignr = "{}{}{}        {}{}\n".format(idt, pipe, text, doubleArrow, self.nIgnr)
+				text = stylizesStr("Ignored amount", txt=T.red, s1=S.strong)
+				ignr = "{}{}{}        {}{}\n".format(idt, pipe, text, doubleArrow, self.amtIgnr)
 
-				text2 = stringStyling("Ignored data size", txt=t.red, s1=s.strong)
+				text2 = stylizesStr("Ignored data size", txt=T.red, s1=S.strong)
 				ignrSize = "{}{}{}     {}{}\n".format(idt, pipe, text2, doubleArrow, self.ignrSize)
 
-			if self.notIgnrSize[0] != '0':
+			if self.amtFolders > 0 or self.amtFiles > 0:
 				sep2 = "{}{}{}\n".format(idt, pipe, sep)
 
-				text = stringStyling("Data size", txt=t.red, s1=s.strong)
+				text = stylizesStr("Data size", txt=T.red, s1=S.strong)
 				size = "{}{}{}             {}{}\n".format(idt, pipe, text, doubleArrow, self.notIgnrSize)
 
-			if self.nFolders > 0:
-				text = stringStyling("Folders' amount", txt=t.red, s1=s.strong)
-				folders = "{}{}{}       {}{}\n".format(idt, pipe, text, doubleArrow, self.nFolders)
+				if self.amtFolders > 0:
+					text = stylizesStr("Folders' amount", txt=T.red, s1=S.strong)
+					folders = "{}{}{}       {}{}\n".format(idt, pipe, text, doubleArrow, self.amtFolders)
 
-				if self.nSubFolders > 0:
-					t1 = stringStyling(" `->sub folders ", s1=s.blur)
-					subFolders = "{}{}{}{}{}\n".format(idt, pipe, t1, doubleArrow, self.nSubFolders)
-				if self.nSubFiles > 0:
-					t2 = stringStyling(" `->sub files   ", s1=s.blur)
-					subFiles = "{}{}{}{}{}\n".format(idt, pipe, t2, doubleArrow, self.nSubFiles)
+					if self.amtSubFolders > 0:
+						t1 = stylizesStr(" `->sub folders ", s1=S.blur)
+						subFolders = "{}{}{}{}{}\n".format(idt, pipe, t1, doubleArrow, self.amtSubFolders)
+					if self.amtSubFiles > 0:
+						t2 = stylizesStr(" `->sub files   ", s1=S.blur)
+						subFiles = "{}{}{}{}{}\n".format(idt, pipe, t2, doubleArrow, self.amtSubFiles)
 
-			if self.nFiles > 0:
-				text = stringStyling("Files' amount", txt=t.red, s1=s.strong)
-				files = "{}{}{}         {}{}\n".format(idt, pipe, text, doubleArrow, self.nFiles)
-		else:
-			emptyMsg = "{}{:^40}\n".format(idt, "This directory is empty :(")
+				if self.amtFiles > 0:
+					text = stylizesStr("Files' amount", txt=T.red, s1=S.strong) 
+					files = "{}{}{}         {}{}\n".format(idt, pipe, text, doubleArrow, self.amtFiles)
 
 		return "{}{}{}{}{}{}{}{}{}{}{}{}{}".format(header, title, emptyMsg, totalSize, sep1, ignr, ignrSize, sep2, folders, subFolders, subFiles, files, size)
 
-def report(path, nv, pathPos, limit, idtPrev):
+FILE, FOLDER = "file", "folder"
+dots = stylizesStr(":", T.red, s1=S.strong)
+def printsTree(name, type, idtPrev, pathPos, amtPaths, size=None):
+	idt = idtPrev
+	if pathPos == amtPaths:
+		idt = "{}{}{}".format(idt, TAB, " ")
+	else:
+		idt = "{}{}{}".format(idt, TAB, dots)
+
+	arrowIdt = "{}{}".format(idtPrev, TAB)
+
+	if type == FOLDER:
+		if name[0] != '/':
+			name = "/{}".format(name)
+		name = stylizesStr(name, T.purple, s1=S.strong, s2=S.italic)
+
+		arrow = "`--> "
+		arrow = stylizesStr(arrow, T.red, s1=S.strong)
+		print("{}{}{}".format(arrowIdt, arrow, name))
+	elif type == FILE:
+		name = stylizesStr(name, T.purple)
+		size = roundsSize(size)
+		size = stylizesStr(size, T.cyan, s1=S.strong)
+
+		arrow = "`-> "
+		arrow = stylizesStr(arrow, T.red, s1=S.strong)
+		text = stylizesStr(" has usage ", s1=S.blur, s2=S.italic)
+
+		print("{}{}{}{}{}".format(arrowIdt, arrow, name, text, size))
+
+		if amtPaths == pathPos: print(arrowIdt)
+
+	return idt
+'''
+def anylizesIgnoredFiles():
+'''
+def analyzesMem(path, nv, amtPaths=1, idtPrev=" ", pathPos=1):
 	ignore = r"/\."
 	folderName = os.path.basename(path)
 	isIgnr = search(ignore, path)
 
-	nFolders = 0
-	nFiles = 0
-	nIgnr = 0
-	with os.scandir(path) as dirrContent:
-		for entry in dirrContent:
-			name = os.path.basename(entry)
+	amtIgnr, amtFolders, amtFiles = 0, 0, 0
+	for entry in os.scandir(path):
+		name = os.path.basename(entry)
 
-			if search(ignore, entry.path):
-				if name[0] == '.':
-					nIgnr += 1
-				continue
+		if search(ignore, entry.path):
+			if name[0] == '.':
+				amtIgnr += 1
+			continue
 
-			if os.path.isdir(entry):
-				nFolders += 1
-			elif os.path.isfile(entry):
-				nFiles += 1
+		if os.path.isdir(entry):
+			amtFolders += 1
+		elif os.path.isfile(entry):
+			amtFiles += 1
+	amtPaths = amtFolders + amtFiles
 
-	nSubFolders = 0
-	nSubFiles = 0
+	amtSubFolders, amtSubFiles = 0, 0
+	ignrSize, notIgnrSize = 0, 0
+	for entry in os.scandir(path):
+		name = os.path.basename(entry)
 
-	ignrSize = 0
-	notIgnrSize = 0
-
-	dots = stringStyling(":", t.red, s1=s.strong)
-	limit = nFolders + nFiles
-
-	with os.scandir(path) as dirrContent:
-		for entry in dirrContent:
-			name = os.path.basename(entry)
-			if name[0] != '/':
-				name = "/{}".format(name)
-
-			idt = idtPrev
-			if limit == pathPos:
-				idt += "{}{}".format(TAB, " ")
-			else:
-				idt += "{}{}".format(TAB, dots)
-
-			idtArrow = "{}{}".format(idtPrev, TAB)
-
-			if search(ignore, entry.path):
-				if name[0] == '.':
-					nIgnr += 1
-
-				if os.path.isdir(entry):
-					_, _, _, _, nIgnrF, ignrS = report(entry.path, nv+1, pathPos, nFolders, idt)
-					nIgnr += nIgnrF
-					ignrSize += ignrS
-
-				elif os.path.isfile(entry):
-					size = os.path.getsize(entry)
-					ignrSize += size
-
-				continue
+		if search(ignore, entry.path):
+			if name[0] == '.':
+				amtIgnr += 1
 
 			if os.path.isdir(entry):
-				name = stringStyling(name, t.purple, s1=s.strong, s2=s.italic)
-
-				arrow = stringStyling("`--> ", t.red, s1=s.strong)
-				print("{}{}\n{}{}{}".format(idtArrow, dots, idtArrow, arrow, name))
-
-				notIgnrS, _, nSubFo, nSubFi, nIgnrF, ignrS = report(entry.path, nv+1, 1, limit, idt)
-				nIgnr += nIgnrF
-
-				nSubFolders += nSubFo
-				nSubFiles += nSubFi
-
+				amtIgnrF, ignrS, _, _, _, _ = analyzesMem(entry.path, nv+1)
+				amtIgnr += amtIgnrF
 				ignrSize += ignrS
-				notIgnrSize += notIgnrS
-				pathPos += 1
 
 			elif os.path.isfile(entry):
-				pathPos += 1
-
-				name = stringStyling(name, t.purple)
 				size = os.path.getsize(entry)
-				notIgnrSize += size
+				ignrSize += size
 
-				sizeStr = roundSize(size)
-				sizeStr = stringStyling(sizeStr, t.cyan)
+			continue
 
-				arrow = stringStyling("`-> ", t.red, s1=s.strong)
-				text = stringStyling(" has usage ", s1=s.blur, s2=s.italic)
+		if os.path.isdir(entry):
+			idt = printsTree(name, FOLDER, idtPrev, pathPos, amtPaths)
 
-				print("{}{}{}{}{}".format(idtArrow, arrow, name, text, sizeStr))
+			amtIgnrF, ignrS, amtSubFo, amtSubFi, notIgnrS, _ = analyzesMem(entry.path, nv+1, amtPaths, idt)
+			amtIgnr += amtIgnrF
 
+			amtSubFolders += amtSubFo
+			amtSubFiles += amtSubFi
+
+			ignrSize += ignrS
+			notIgnrSize += notIgnrS
+
+		elif os.path.isfile(entry):
+			size = os.path.getsize(entry)
+			notIgnrSize += size
+
+			printsTree(name, FILE, idtPrev, pathPos, amtPaths, size)
+
+		pathPos += 1
 
 	if not isIgnr:
-		folderData = Dirr(nv, folderName, nIgnr, ignrSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize)
-
+		folderData = Dirr(nv, folderName, amtIgnr, ignrSize, amtFolders, amtSubFolders, amtSubFiles, amtFiles, notIgnrSize)
 		fullDataFolders.append(folderData)
 
-	return notIgnrSize, nFolders, nSubFolders + nFolders, nSubFiles + nFiles, nIgnr, ignrSize
+	return amtIgnr, ignrSize, amtSubFolders + amtFolders, amtSubFiles + amtFiles, notIgnrSize, amtFolders
 
-def getInputPath(path):
+def getsInputPath(path):
 	workingPath = os.getcwd()
 	dirr = "{}/{}".format(workingPath, path)
 
 	if not os.path.exists(dirr):
-		print("Bad input. Try again with path to a existing directory.")
+		print("Bad inpuT. Try again with path to a existing directory.")
 		exit()
 	elif not os.path.isdir(dirr):
-		print("Bad input. Try again with path to a directory.")
+		print("Bad inpuT. Try again with path to a directory.")
 		exit()
 
 	os.chdir(path)
@@ -384,47 +379,49 @@ def getInputPath(path):
 
 	return dirr
 
-def printDataTree(edge):
+def printsDataTree(edge):
 	title = "{}DATA TREE{}".format(edge[3:], edge[3:])
-	title = stringStyling(title, t.cyan, s1=s.strong)
+	title = stylizesStr(title, T.cyan, s1=S.strong)
 	print("\n\n{}".format(title))
+
 	for folder in fullDataFolders[::-1]: print(folder, end="")
 
-def validInput():
+def validatesInput():
 	if len(argv) > 2:
-		print("Bad input. Try again with:")
-		print(" \"./diskReport <path>\" or only \"./diskReport\" for analize current directory.")
+		print("Bad inpuT. Try again with:")
+		print(" \"./diskanalyzesMem <path>\" or only \"./diskanalyzesMem\" for analize current directory.")
 		exit()
 
 	dirr = "/home"
 	if len(argv) == 2:
-		dirr = getInputPath(argv[1])
+		dirr = getsInputPath(argv[1])
 
 	return dirr
 
 def main():
-	directory = validInput()
+	directory = validatesInput()
 
 	name = "/{}".format(os.path.basename(directory))
-	name = stringStyling(name, t.purple, s1=s.strong, s2=s.italic)
+	name = stylizesStr(name, T.purple, s1=S.strong, s2=S.italic)
 
 	edge = ' - ' * 10
 	title = "{}TREE{}".format(edge, edge)
-	title = stringStyling(title, t.cyan, s1=s.strong)
+	title = stylizesStr(title, T.cyan)
 
 	arrow = "`--> "
-	arrow = stringStyling(arrow, t.red, s1=s.strong)
+	arrow = stylizesStr(arrow, T.red, s1=S.strong)
 	print("\n{}".format(title))
 	print("{}{}".format(arrow, name))
 
-	report(directory, 1, 1, 1, " ")
+	analyzesMem(directory, 1)
 
-	# printDataTree(edge)
+	printsDataTree(edge)
 
 if __name__ == "__main__":
 	main()
 
 '''
+end=f" \033[1;32m{pathPos}º | {amtPaths}\033[m\n"
 -  -  -  -  -  -  -  -  -  - TREE -  -  -  -  -  -  -  -  -  -
   -  -  -  -  -  -  -  -  - DATA TREE -  -  -  -  -  -  -  -  -
 '''

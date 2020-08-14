@@ -211,15 +211,15 @@ class Dirr:
 		ignr, ignrSize = "", ""
 		folders, subFolders, subFiles, files, size = "", "", "", "", ""
 
-		detail = stringStyling('-', t.cyan, s1=s.strong)
-		header = "\n{}{}\n".format(idt, 40 * detail)
-		header = "{}{}".format(idt, pipe)
+		detail = stringStyling('_', t.cyan, s1=s.strong)
+		# header = "\n{}{}\n".format(idt, 40 * detail)
+		header = "{}".format(idt)
 
 		name = stringStyling(self.name, t.red, s1=s.strong)
 		initP1 = len(self.name) // 2
 		initP2 = len(self.name) - initP1
 
-		bar = stringStyling("`", t.cyan, s1=s.strong)
+		bar = stringStyling("\\", t.cyan, s1=s.strong)
 		p1 = "{}{}".format(bar, (18 - initP1) * detail)
 		p2 = "{}".format((20 - initP2) * detail)
 
@@ -269,67 +269,97 @@ class Dirr:
 
 		return "{}{}{}{}{}{}{}{}{}{}{}{}{}".format(header, title, emptyMsg, totalSize, sep1, ignr, ignrSize, sep2, folders, subFolders, subFiles, files, size)
 
-def report(path, nv):
+def report(path, nv, pathPos, limit, idtPrev):
 	ignore = r"/\."
 	folderName = os.path.basename(path)
 	isIgnr = search(ignore, path)
 
-	nIgnr = 0
-	ignrSize = 0
-
 	nFolders = 0
+	nFiles = 0
+	nIgnr = 0
+	with os.scandir(path) as dirrContent:
+		for entry in dirrContent:
+			name = os.path.basename(entry)
+
+			if search(ignore, entry.path):
+				if name[0] == '.':
+					nIgnr += 1
+				continue
+
+			if os.path.isdir(entry):
+				nFolders += 1
+			elif os.path.isfile(entry):
+				nFiles += 1
+
 	nSubFolders = 0
 	nSubFiles = 0
-	nFiles = 0
+
+	ignrSize = 0
 	notIgnrSize = 0
 
-	indentation = TAB * nv
-	for entry in os.scandir(path):
-		name = os.path.basename(entry)
+	dots = stringStyling(":", t.red, s1=s.strong)
+	limit = nFolders + nFiles
 
-		if search(ignore, entry.path):
-			if os.path.isdir(entry):
+	with os.scandir(path) as dirrContent:
+		for entry in dirrContent:
+			name = os.path.basename(entry)
+			if name[0] != '/':
+				name = "/{}".format(name)
+
+			idt = idtPrev
+			if limit == pathPos:
+				idt += "{}{}".format(TAB, " ")
+			else:
+				idt += "{}{}".format(TAB, dots)
+
+			idtArrow = "{}{}".format(idtPrev, TAB)
+
+			if search(ignore, entry.path):
 				if name[0] == '.':
 					nIgnr += 1
 
-				_, _, _, _, nIgnrF, ignrS = report(entry.path, nv+1)
+				if os.path.isdir(entry):
+					_, _, _, _, nIgnrF, ignrS = report(entry.path, nv+1, pathPos, nFolders, idt)
+					nIgnr += nIgnrF
+					ignrSize += ignrS
+
+				elif os.path.isfile(entry):
+					size = os.path.getsize(entry)
+					ignrSize += size
+
+				continue
+
+			if os.path.isdir(entry):
+				name = stringStyling(name, t.purple, s1=s.strong, s2=s.italic)
+
+				arrow = stringStyling("`--> ", t.red, s1=s.strong)
+				print("{}{}\n{}{}{}".format(idtArrow, dots, idtArrow, arrow, name))
+
+				notIgnrS, _, nSubFo, nSubFi, nIgnrF, ignrS = report(entry.path, nv+1, 1, limit, idt)
 				nIgnr += nIgnrF
+
+				nSubFolders += nSubFo
+				nSubFiles += nSubFi
+
 				ignrSize += ignrS
+				notIgnrSize += notIgnrS
+				pathPos += 1
 
 			elif os.path.isfile(entry):
+				pathPos += 1
+
+				name = stringStyling(name, t.purple)
 				size = os.path.getsize(entry)
-				ignrSize += size
+				notIgnrSize += size
 
-			continue
+				sizeStr = roundSize(size)
+				sizeStr = stringStyling(sizeStr, t.cyan)
 
-		if os.path.isdir(entry):
-			name = "/{}".format(name)
-			name = stringStyling(name, t.purple, s1=s.strong, s2=s.italic)
+				arrow = stringStyling("`-> ", t.red, s1=s.strong)
+				text = stringStyling(" has usage ", s1=s.blur, s2=s.italic)
 
-			arrow = stringStyling("`--> ", t.red, s1=s.strong)
-			print("\n{}{}{}".format(indentation, arrow, name))
-			nFolders += 1
+				print("{}{}{}{}{}".format(idtArrow, arrow, name, text, sizeStr))
 
-			notIgnrS, _, nSubFo, nSubFi, nIgnrF, ignrS = report(entry.path, nv+1)
-			notIgnrSize += notIgnrS
-			nSubFolders += nSubFo
-			nSubFiles += nSubFi
-			nIgnr += nIgnrF
-			ignrSize += ignrS
-
-		elif os.path.isfile(entry):
-			name = stringStyling(name, t.purple)
-
-			size = os.path.getsize(entry)
-			sizeStr = roundSize(size)
-			sizeStr = stringStyling(sizeStr, t.cyan)
-
-			arrow = stringStyling("`-> ", t.red, s1=s.strong)
-			text = stringStyling(" has usage ", s1=s.blur, s2=s.italic)
-			print("{}{}{}{}{}".format(indentation, arrow, name, text, sizeStr))
-
-			nFiles += 1
-			notIgnrSize += size
 
 	if not isIgnr:
 		folderData = Dirr(nv, folderName, nIgnr, ignrSize, nFolders, nSubFolders, nSubFiles, nFiles, notIgnrSize)
@@ -387,9 +417,9 @@ def main():
 	print("\n{}".format(title))
 	print("{}{}".format(arrow, name))
 
-	report(directory, 1)
+	report(directory, 1, 1, 1, " ")
 
-	printDataTree(edge)
+	# printDataTree(edge)
 
 if __name__ == "__main__":
 	main()

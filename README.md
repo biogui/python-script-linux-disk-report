@@ -18,11 +18,13 @@ After that, clone the repository with and create a command:
 > `$ ln -s ~/.disk_analyzes/diskReport.py /bin/analyzes`
 
 Now, in any directory, just using the `analyzes` command:
-* For /home, run without arguments:
-  - `$ analyzes`
+>For /home, run without arguments:
+>
+>`$ analyzes`
 
-* For others, run with path directory:
-  - `$ analyzes <path>`
+>For others, run with path directory:
+>
+>`$ analyzes <path>`
 
 
 

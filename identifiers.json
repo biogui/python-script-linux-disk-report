@@ -1,0 +1,118 @@
+
+identifiers = {
+	"Data":{
+		"Data and database":{
+			".csv":"Comma separated value file",
+			".dat":"Data file",
+			".db":"Database file",
+			".dbf":"Database file",
+			".log":"Log file",
+			".mdb":"Microsoft Access database file",
+			".sav":"Save file (e.g., game save file)",
+			".sql":"SQL database file",
+			".tar":"Linux / Unix tarball file archive",
+			".xml":"XML file"
+		},
+		"Compressed":{
+			".7z":"7-Zip compressed file",
+			".arj":"ARJ compressed file",
+			".deb":"Debian software package file",
+			".pkg":"Package file",
+			".rar":"RAR file",
+			".rpm":"Red Hat Package Manager",
+			".tar.gz":"Tarball compressed file",
+			".z":"Z compressed file",
+			".zip":"Zip compressed file"
+		}
+	},
+	"Docs":{
+		"Text":{
+			".doc":"Microsoft Word file",
+			".docx":"Microsoft Word file",
+			".odt":"OpenOffice Writer document file",
+			".pdf":"PDF file",
+			".rtf":"Rich Text Format",
+			".tex":"A LaTeX document file",
+			".txt":"Plain text file",
+			".wpd":"WordPerfect document"
+	},
+		"Presentation":{
+			".key":"Keynote presentation",
+			".odp":"OpenOffice Impress presentation file",
+			".pps":"PowerPoint slide show",
+			".ppt":"PowerPoint presentation",
+			".pptx":"PowerPoint Open XML presentation"
+		}
+	},
+	"Midia":{
+		"Videos":{
+			".3g2":"3GPP2 multimedia file",
+			".3gp":"3GPP multimedia file",
+			".avi":"AVI file",
+			".flv":"Adobe Flash file",
+			".h264":"H.264 video file",
+			".m4v":"Apple MP4 video file",
+			".mkv":"Matroska Multimedia Container",
+			".mov":"Apple QuickTime movie file",
+			".mp4":"MPEG4 video file",
+			".mpg":"MPEG video file",
+			".mpeg":"MPEG video file",
+			".rm":"RealMedia file",
+			".swf":"Shockwave flash file",
+			".vob":"DVD Video Object",
+			".wmv":"Windows Media Video file"
+		},
+		"Images":{
+			".ai":"Adobe Illustrator file",
+			".bmp":"Bitmap image",
+			".gif":"GIF image",
+			".ico":"Icon file",
+			".jpeg":"JPEG image",
+			".jpg":"JPEG image",
+			".png":"PNG image",
+			".ps":"PostScript file",
+			".psd":"PSD image",
+			".svg":"Scalable Vector Graphics file",
+			".tif":"TIFF image",
+			".tiff":"TIFF image"
+		},
+		"Audio":{
+			".aif":"AIF audio file",
+			".cda":"CD audio track file",
+			".mid":"MIDI audio file",
+			".midi":"MIDI audio file",
+			".mp3":"MP3 audio file",
+			".mpa":"MPEG-2 audio file",
+			".ogg":"Ogg Vorbis audio file",
+			".wav":"WAV file",
+			".wma":"WMA audio file",
+			".wpl":"Windows Media Player playlist"
+		}
+	},
+	"Code":{
+		".c":"C/C++",
+		".class":"Java",
+		".cpp":"C++",
+		".cs":"Visual C#",
+		".h":"C/C++",
+		".java":"Java",
+		".pl":"Perl script",
+		".sh":"Bash shell script",
+		".swift":"Swift",
+		".vb":"Visual Basic",
+		".asp":"Active Server Page",
+		".aspx":"Active Server Page",
+		".cfm":"ColdFusion Markup",
+		".cgi":"Perl script",
+		".pl":"Perl script",
+		".css":"Cascading Style Sheet",
+		".htm":"HTML",
+		".html":"HTML",
+		".js":"JavaScript",
+		".jsp":"Java Server Page",
+		".php":"PHP",
+		".py":"Python",
+		".rss":"RSS",
+		".xhtml":"XHTML"
+	}
+}

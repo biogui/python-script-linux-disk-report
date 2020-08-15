@@ -4,7 +4,7 @@
 
 Hi, I'm [Bio](https://github.com/biogui)!
 
-And this is a script for report the detail usage of a directory in linux disk
+And this is a script for report the detailed usage of a directory in linux disk
 
 Thanks for testing, feedbacks are awesome! Feel free to contact me on telegram [here](https://t.me/gui_bio) :)
 

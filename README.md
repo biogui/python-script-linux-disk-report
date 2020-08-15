@@ -19,10 +19,10 @@ After that, clone the repository with and create a command:
 
 Now, in any directory, just using the `analyzes` command:
 * For /home, run without arguments:
-* `$ analyzes`
+- `$ analyzes`
 
 * For others, run with path directory:
-* `$ analyzes <path>`
+- `$ analyzes <path>`
 
 
 

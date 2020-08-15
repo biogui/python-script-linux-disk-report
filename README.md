@@ -13,11 +13,15 @@ Get the updated version of Python(3.x.x):
 
 After that, clone the repository with and create a command:
 
-`$ git clone https://github.com/biogui/simple-image-editor-with-openCV ~/.disk_analyzes`
-`$ ln -s ~/.disk_analyzes/diskReport.py /bin/analyzes`
+>`$ git clone https://github.com/biogui/simple-image-editor-with-openCV ~/.disk_analyzes`
+>
+> `$ ln -s ~/.disk_analyzes/diskReport.py /bin/analyzes`
 
-Now, in any directory, just run the `analyzes` command:
->Only `$ analyzes` for /home, or `$ analyzes <path>` for chosen directory
+Now, in any directory, just using the `analyzes` command:
+>* For /home run without arguments:
+>`$ analyzes`
+>* For others, run with path directory:
+>`$ analyzes <path>`
 
 
 
